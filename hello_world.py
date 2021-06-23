@@ -73,8 +73,52 @@ def save(lst):
     stu_txt.close()
     
 def search():
+    student_query=[]
     while True:
-        pass
+        if os.path.exists(filename):
+            stuid=''
+            name=''
+            choice = int(input("根据id查询请输入1，根据name查询请输入2"))
+            if choice == 1:
+                stuid = input("请输入要查找的学生id：")
+            elif choice== 2:
+                name = input("请输入学生的姓名")
+            else:
+                print("输入有误，请重新输入")
+                search()
+            with open(filename,'r',encoding='utf-8') as file:
+                student_oldlst = file.readlines()
+                for item in student_oldlst:
+                    d = dict(eval(item))
+                    if d['id']==stuid or d['name']==name:
+                        student_query.append(d)
+            show_student(student_query)
+            #清空列表
+            student_query.clear()
+            answer = input("是否要继续查询？y/n\n")
+            if answer=='y':
+                continue
+            else:
+                break
+                        
+        else:
+            print("没有学生信息")
+            return
+def show_student(lst):
+    if len(lst)==0:
+        print("没有查询到学生信息，无数据显示")
+        return
+    format_title='{:^6}\t{:^12}\t{:^8}\t{:^10}\t{:^10}\t{:^8}'
+    print(format_title.format('ID','姓名','英语成绩','Python成绩','Java成绩','总成绩')) 
+    format_data='{:^6}\t{:^12}\t{:^8}\t{:^10}\t{:^10}\t{:^8}'  
+    for item in lst:
+        print(format_data.format(item.get('id'),
+                                 item['name'],
+                                 item['englist'],
+                                 item['python'],
+                                 item['java'],
+                                 str(int(item['englist'])+int(item['python'])+int(item['java']))
+                                 )) 
 def delete():
     while True:
         id=input("请输入要删除的学生的ID")
@@ -104,8 +148,7 @@ def delete():
             show()      #删除后重新显示所有学生信息
             answer = input("是否继续删除？y/n\n")
             if answer == 'n' or answer =='N':
-                break
-                    
+                break                   
 def modify():
     show()
     if os.path.exists(filename):
@@ -123,7 +166,7 @@ def modify():
                 while True:
                     try:
                         d['name'] = input('请输入姓名：')
-                        d['english'] = input('请输入英语成绩：')
+                        d['englist'] = input('请输入英语成绩：')
                         d['python'] = input('请输入python成绩：')
                         d['java'] = input('请输入java成绩：')
                     except:
@@ -140,10 +183,50 @@ def modify():
     else: 
         show()
 def sort():
-    pass
+    student_lst=[]
+    if os.path.exists(filename):
+        with open(filename,'r',encoding='utf-8') as file:
+            student=file.readlines()
+        for item in student:
+            student_lst.append(dict(eval(item)))
+        asc_or_desc = int(input("请选择（0:升序，1:降序）："))
+        mode = input('请选择排序方式1.按英语成绩排序 2.按Python成绩排序 3. 按Java成绩排序 4. 按总成绩排序：')
+        if mode =='1':
+            student_lst.sort(key=lambda student:int(student['englist']),reverse=asc_or_desc)
+        elif mode =='2':
+            student_lst.sort(key=lambda student : int(student['python']),reverse=asc_or_desc)
+        elif mode == '3':
+            student_lst.sort(key=lambda student : int(student['java']),reverse=asc_or_desc)
+        elif mode == '4':
+            student_lst.sort(key=lambda student : int(student['englist'])+int(student['python'])+int(student['java']),reverse=asc_or_desc)
+        else:
+            print('请重新输入')
+            sort()
+        show_student(student_lst)        
+    else:
+        return
 def total():
-    pass
+    if os.path.exists(filename):
+        with open(filename,'r',encoding='utf-8') as file:
+            students = file.readlines()
+            if students:
+                print(f'一共有{len(students)}名学生')
+            else:
+                print(f'还没有学生数据')
+    else:
+        print("暂无学生数据")
 def show():
-    pass
+    student_lst=[]
+    if os.path.exists(filename):
+        with open(filename,'r',encoding='utf-8') as file:
+            student = file.readlines()
+            for item in student:
+                student_lst.append(eval(item))
+            if student_lst:
+                show_student(student_lst)
+            
+    else:
+        print('没有学生信息')
+        return
 if __name__=='__main__':
     main()
